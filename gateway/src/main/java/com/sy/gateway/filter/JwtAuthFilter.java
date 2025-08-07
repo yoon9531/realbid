@@ -26,7 +26,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    // 화이트리스트 패턴
     private static final List<String> WHITELIST = List.of(
             "/api/auth/**",
             "/swagger-ui/**",
@@ -38,7 +37,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         final String path = exchange.getRequest().getPath().value();
 
-        // 화이트리스트 패턴 지원
         for (String pattern : WHITELIST) {
             if (pathMatcher.match(pattern, path)) {
                 return chain.filter(exchange);
@@ -58,7 +56,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                     .parseClaimsJws(token)
                     .getBody();
 
-            // 다운스트림 서비스에 필요한 정보만 헤더로 전달
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                     .header("X-User-Id", claims.getSubject())
 //                    .header("X-User-Role", claims.get("role", String.class)) // Role도 Claims에서 꺼낼 때
