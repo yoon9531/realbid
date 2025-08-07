@@ -25,6 +25,18 @@ spring:
             locator:
               enabled: true
               lower-case-service-id: true
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                          allowedOrigins: "*"
+                          allowedMethods:
+                            - GET
+                            - POST
+                            - PUT
+                            - DELETE
+                            - OPTIONS
+                          allowedHeaders: "*"
+                          allowCredentials: true
 
 eureka:
   instance:
