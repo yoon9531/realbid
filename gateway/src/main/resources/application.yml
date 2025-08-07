@@ -20,7 +20,7 @@ spring:
             - id: auction-service
               uri: lb://auction-service
               predicates:
-                - Path=/api/auctions/**
+                - Path=/ws/**
           discovery:
             locator:
               enabled: true
