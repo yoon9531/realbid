@@ -5,9 +5,9 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/realbid_auth
-    username: realbid
-    password: realbid1234
+    url: jdbc:postgresql://localhost:5432/realbid
+    username: postgres
+    password: 1234
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,5 +23,5 @@ eureka:
     fetch-registry: true
 
 jwt:
-  secret: realbid-jwt-secret-key
-  expiration: 3600000                 # 1??
+  secret: realbid-jwt-secret-key-realbid-jwt-secret-key-realbid-jwt-secret-key-realbid-jwt-secret-key-realbid-jwt-secret-key
+  access-expiration: 3600000

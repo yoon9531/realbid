@@ -27,12 +27,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDto>> login(@RequestBody LoginRequestDto req) {
-        return ResponseEntity.ok(ApiResponse.success(authService.login(req)));
+        AuthResponseDto response = authService.login(req);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/validate")
     public ResponseEntity<ApiResponse<Boolean>> validate(@RequestBody String token) {
-        return ResponseEntity.ok(ApiResponse.success(authService.validate(token)));
+        boolean validated = authService.validate(token);
+
+        return ResponseEntity.ok(ApiResponse.success(validated));
     }
 
 }

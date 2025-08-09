@@ -28,8 +28,8 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
     private static final List<String> WHITELIST = List.of(
             "/api/auth/**",
-            "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/*/swagger-ui/**",
+            "/*/v3/api-docs/**"
     );
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 

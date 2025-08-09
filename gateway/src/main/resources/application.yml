@@ -21,22 +21,32 @@ spring:
               uri: lb://auction-service
               predicates:
                 - Path=/ws/**
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+#              filters:
+#                - StripPrefix=1
           discovery:
             locator:
               enabled: true
               lower-case-service-id: true
           globalcors:
-            cors-configurations:
+            add-to-simple-url-handler-mapping: true
+            corsConfigurations:
               '[/**]':
-                          allowedOrigins: "*"
-                          allowedMethods:
-                            - GET
-                            - POST
-                            - PUT
-                            - DELETE
-                            - OPTIONS
-                          allowedHeaders: "*"
-                          allowCredentials: true
+                allowedOriginPatterns:
+                  - "http://localhost:3000"
+                  - "https://*.mydomain.com"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+                maxAge: 3600
 
 eureka:
   instance:
@@ -46,6 +56,14 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     register-with-eureka: true
     fetch-registry: true
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    # Gateway의 Swagger UI 페이지에 접속했을 때, 각 서비스의 API 문서를 어디서 가져올지 정의
+    urls:
+      - name: Auth Service # UI의 드롭다운 메뉴에 표시될 이름
+        url: http://localhost:8000/auth-service/v3/api-docs # auth-service의 OpenAPI 3.0 명세 경로 (Gateway 경로 포함)
 
 jwt:
   secret: realbid-jwt-secret-key

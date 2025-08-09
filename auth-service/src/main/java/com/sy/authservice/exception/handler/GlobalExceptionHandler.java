@@ -1,6 +1,8 @@
 package com.sy.authservice.exception.handler;
 
 import com.sy.authservice.dto.ApiResponse;
+import com.sy.authservice.exception.ApiException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -11,6 +13,6 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ApiResponse<?>> handleApiException(ApiException e) {
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
-                .body(ApiResponse.error(e.getErrorCode().getMessage()));
+                .body(ApiResponse.failure(e.getErrorCode().getMessage()));
     }
 }
