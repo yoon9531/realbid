@@ -1,5 +1,7 @@
 package com.sy.auctionservice.kafka.producer;
 
+import com.sy.auctionservice.event.AuctionEndedEvent;
+import com.sy.auctionservice.event.BidPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

@@ -1,5 +1,7 @@
 package com.sy.auctionservice.kafka.consumer;
 
+import com.sy.auctionservice.event.PaymentResultEvent;
+import com.sy.auctionservice.event.PaymentStatus;
 import com.sy.auctionservice.service.AuctionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
