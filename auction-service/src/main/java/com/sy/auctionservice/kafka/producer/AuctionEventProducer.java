@@ -1,0 +1,26 @@
+package com.sy.auctionservice.kafka.producer;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class AuctionEventProducer {
+
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    public void sendAuctionEndedEvent(AuctionEndedEvent event) {
+        log.info("Issuing AuctionEndedEvent for auctionId: {}", event.getAuctionId());
+        // 키를 auctionId로 지정하면 동일 경매 이벤트는 같은 파티션으로 전달되어 순서가 보장됨
+        kafkaTemplate.send("auction-events", String.valueOf(event.getAuctionId()), event);
+    }
+
+    public void sendBidPlacedEvent(BidPlacedEvent event) {
+        // 입찰 이벤트는 매우 많으므로 로그 레벨을 debug로 조정 가능
+        log.debug("Issuing BidPlacedEvent for auctionId: {}", event.getAuctionId());
+        kafkaTemplate.send("bid-events", String.valueOf(event.getAuctionId()), event);
+    }
+}
