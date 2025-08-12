@@ -45,7 +45,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("[JWT Filter] Missing or invalid Authorization header: {}", authHeader);
+//            log.warn("[JWT Filter] Missing or invalid Authorization header: {}", authHeader);
             return unauthorizedJson(exchange, "Invalid or missing JWT token");
         }
 
@@ -63,7 +63,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
         } catch (Exception e) {
-            log.warn("[JWT Filter] Token parse/validation failed: {}", e.getMessage());
+//            log.warn("[JWT Filter] Token parse/validation failed: {}", e.getMessage());
             return unauthorizedJson(exchange, "Invalid or expired JWT token");
         }
     }

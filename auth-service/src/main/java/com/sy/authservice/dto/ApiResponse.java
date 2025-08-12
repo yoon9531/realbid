@@ -13,6 +13,7 @@ public class ApiResponse<T> {
     private final T data;
     private final String message;
 
+
     public static <T> ApiResponse<T> success() {
         return new ApiResponse<>(true, null, null);
     }
