@@ -37,8 +37,6 @@ public class AuctionService {
     public AuctionStateResponse processBid(Long auctionId, BidRequest bidRequest) {
         try {
             // --- 1. 경매 정보 조회 ---
-            // 여러 사용자의 동시 입찰로 인한 데이터 부정합을 막기 위해 낙관적 잠금을 사용합니다.
-            // Auction 엔티티에 @Version 어노테이션이 필요합니다.
             Auction auction = auctionRepository.findById(auctionId)
                     .orElseThrow(() -> new EntityNotFoundException("해당 경매를 찾을 수 없습니다: " + auctionId));
 

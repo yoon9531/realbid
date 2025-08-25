@@ -21,7 +21,6 @@ public class AuctionEventProducer {
     }
 
     public void sendBidPlacedEvent(BidPlacedEvent event) {
-        // 입찰 이벤트는 매우 많으므로 로그 레벨을 debug로 조정 가능
         log.debug("Issuing BidPlacedEvent for auctionId: {}", event.getAuctionId());
         kafkaTemplate.send("bid-events", String.valueOf(event.getAuctionId()), event);
     }

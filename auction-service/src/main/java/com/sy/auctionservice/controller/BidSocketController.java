@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class BidSocketController {
     private final AuctionService auctionService;
-    private final SimpMessagingTemplate messagingTemplate; // 특정 토픽으로 메시지를 보내는 도구
+    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/auctions/{auctionId}/bid") // 클라이언트가 /app/auctions/{id}/bid 로 메시지를 보냄
     public void handleBid(@DestinationVariable Long auctionId, BidRequest bidRequest) {
