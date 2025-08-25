@@ -1,7 +1,9 @@
 package com.sy.gateway.filter;
 
+import com.sy.gateway.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -19,12 +21,16 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.*;
+import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.http.HttpStatus.*;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtAuthFilter implements GlobalFilter, Ordered {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    private final JwtUtil jwtUtil;
 
     private static final List<String> WHITELIST = List.of(
             "/api/auth/**",
@@ -43,18 +49,14 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             }
         }
 
-        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String authHeader = exchange.getRequest().getHeaders().getFirst(AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//            log.warn("[JWT Filter] Missing or invalid Authorization header: {}", authHeader);
             return unauthorizedJson(exchange, "Invalid or missing JWT token");
         }
 
         String token = authHeader.substring(7);
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8))
-                    .parseClaimsJws(token)
-                    .getBody();
+            Claims claims = jwtUtil.getClaimsFromToken(token);
 
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                     .header("X-User-Id", claims.getSubject())
@@ -63,7 +65,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
         } catch (Exception e) {
-//            log.warn("[JWT Filter] Token parse/validation failed: {}", e.getMessage());
             return unauthorizedJson(exchange, "Invalid or expired JWT token");
         }
     }
@@ -71,9 +72,9 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     // 401 JSON 응답
     private Mono<Void> unauthorizedJson(ServerWebExchange exchange, String msg) {
         ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
-        byte[] bytes = ("{\"code\":401,\"message\":\"" + msg + "\"}").getBytes(StandardCharsets.UTF_8);
+        response.setStatusCode(UNAUTHORIZED);
+        response.getHeaders().set(CONTENT_TYPE, "application/json;charset=UTF-8");
+        byte[] bytes = ("{\"code\":401,\"message\":\"" + msg + "\"}").getBytes(UTF_8);
         return response.writeWith(Mono.just(response.bufferFactory().wrap(bytes)));
     }
 

@@ -35,7 +35,6 @@ spring:
               '[/**]':
                 allowedOriginPatterns:
                   - "http://localhost:3000"
-                  - "https://*.mydomain.com"
                 allowedMethods:
                   - GET
                   - POST
@@ -58,10 +57,10 @@ eureka:
 springdoc:
   swagger-ui:
     use-root-path: true
-    # Gateway의 Swagger UI 페이지에 접속했을 때, 각 서비스의 API 문서를 어디서 가져올지 정의
     urls:
-      - name: Auth Service # UI의 드롭다운 메뉴에 표시될 이름
-        url: http://localhost:8000/auth-service/v3/api-docs # auth-service의 OpenAPI 3.0 명세 경로 (Gateway 경로 포함)
+      - name: Auth Service
+        url: http://localhost:8000/auth-service/v3/api-docs
 
 jwt:
-  secret: realbid-jwt-secret-key
+  secret: dXNlcjEtc2VjcmV0LWtleS1mb3ItZ2F0ZXdheS1wcm9qZWN0LWV4YW1wbGU=
+  access-token-expiration-time: 360000
