@@ -55,16 +55,16 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeader.substring(7);
-        try {
+        if (jwtUtil.validateToken(token)) {
             Claims claims = jwtUtil.getClaimsFromToken(token);
+            String userId = claims.getSubject();
 
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                    .header("X-User-Id", claims.getSubject())
-//                    .header("X-User-Role", claims.get("role", String.class)) // Role도 Claims에서 꺼낼 때
+                    .header("X-User-Id", userId)
                     .build();
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
-        } catch (Exception e) {
+        } else {
             return unauthorizedJson(exchange, "Invalid or expired JWT token");
         }
     }
