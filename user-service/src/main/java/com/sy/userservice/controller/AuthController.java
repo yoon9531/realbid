@@ -19,9 +19,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto dto) {
-        userService.login(dto);
+        LoginResponseDto result = userService.login(dto);
 
-        return new ApiResponse<>()
+        return ApiResponse.success(result);
     }
 
 }

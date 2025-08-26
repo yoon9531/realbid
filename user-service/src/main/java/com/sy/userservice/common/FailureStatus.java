@@ -39,12 +39,7 @@ public enum FailureStatus implements ApiStatus {
     }
 
     @Override
-    public ReasonDto getHttpStatus() {
-        return ReasonDto.builder()
-                .isSuccess(true)
-                .code(code)
-                .message(message)
-                .httpStatus(httpStatus)
-                .build();
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
     }
 }

@@ -1,8 +1,10 @@
 package com.sy.userservice.common;
 
+import org.springframework.http.HttpStatus;
+
 public interface ApiStatus {
 
     ReasonDto getReason();
 
-    ReasonDto getHttpStatus();
+    HttpStatus getHttpStatus();
 }
