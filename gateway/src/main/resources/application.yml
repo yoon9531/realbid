@@ -64,3 +64,12 @@ springdoc:
 jwt:
   secret: dXNlcjEtc2VjcmV0LWtleS1mb3ItZ2F0ZXdheS1wcm9qZWN0LWV4YW1wbGU=
   access-token-expiration-time: 360000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus,metrics,beans"
+  endpoint:
+    health:
+      show-details: always

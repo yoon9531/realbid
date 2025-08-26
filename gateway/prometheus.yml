@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s # 데이터 수집 주기 : 15초
+
+scrape-configs:
+  - job_name: 'spring-cloud-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['gateway:8000'] # gateway 주소
+  - job_name: 'auth-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['gateway:8000']

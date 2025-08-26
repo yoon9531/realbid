@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. Spring Cloud Gateway 서비스
+  gateway:
+    build:
+      context: ./gateway # 'gateway' 디렉터리의 Dockerfile을 사용하여 이미지를 빌드
+    container_name: gateway
+    ports:
+      - "8080:8080" # 외부에서 8080 포트로 접근 허용
+    environment:
+      # yml에 설정한 JWT secret 등을 환경변수로 주입할 수 있습니다.
+      - JWT_SECRET=your-base64-encoded-secret-key
+    networks:
+      - monitor-net
+
+  # 2. Prometheus 서비스
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      # 로컬의 prometheus.yml 파일을 컨테이너 내부 경로에 마운트
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - monitor-net
+
+  # 3. Grafana 서비스
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # Grafana 기본 비밀번호를 변경하지 않도록 설정 (테스트용)
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      # Grafana 데이터를 로컬에 저장하여 컨테이너가 재시작돼도 데이터가 유지되도록 설정
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus # Prometheus가 먼저 실행된 후 Grafana가 실행되도록 설정
+    networks:
+      - monitor-net
+
+# 서비스들이 통신할 네트워크 정의
+networks:
+  monitor-net:
+    driver: bridge
+
+# Grafana 데이터 유지를 위한 볼륨 정의
+volumes:
+  grafana-data:
