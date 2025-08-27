@@ -1,6 +1,7 @@
 package com.sy.userservice.exception;
 
 import com.sy.userservice.common.ApiStatus;
+import com.sy.userservice.common.FailureStatus;
 import com.sy.userservice.common.ReasonDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,17 +10,17 @@ import org.springframework.http.HttpStatus;
 @Getter
 @NoArgsConstructor
 public class ApiException extends RuntimeException{
-    private ApiStatus apiStatus;
+    private FailureStatus status;
 
-    public ApiException(ApiStatus apiStatus) {
-        this.apiStatus = apiStatus;
+    public ApiException(FailureStatus status) {
+        this.status = status;
     }
 
     public ReasonDto getReason() {
-        return apiStatus.getReason();
+        return status.getReason();
     }
 
     public HttpStatus getReasonHttpStatus() {
-        return this.apiStatus.getHttpStatus();
+        return this.status.getHttpStatus();
     }
 }

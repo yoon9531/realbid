@@ -3,7 +3,9 @@ package com.sy.userservice.controller;
 import com.sy.userservice.common.ApiResponse;
 import com.sy.userservice.dto.LoginRequestDto;
 import com.sy.userservice.dto.LoginResponseDto;
-import com.sy.userservice.service.UserService;
+import com.sy.userservice.dto.RegisterRequestDto;
+import com.sy.userservice.dto.RegisterResponseDto;
+import com.sy.userservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,13 +17,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto dto) {
-        LoginResponseDto result = userService.login(dto);
+    public ApiResponse<LoginResponseDto> login (@RequestBody LoginRequestDto dto) {
+        LoginResponseDto result = authService.login(dto);
 
         return ApiResponse.success(result);
+    }
+
+    @PostMapping("/register")
+    public ApiResponse<RegisterResponseDto> register (@RequestBody RegisterRequestDto dto) {
+        RegisterResponseDto response = authService.register(dto);
+
+        return ApiResponse.success(response);
     }
 
 }
