@@ -138,4 +138,8 @@ public class JwtTokenProvider {
         }
         return null;
     }
+
+    public String getUsername(String token) {
+        return Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token).getBody().getSubject();
+    }
 }
