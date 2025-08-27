@@ -9,11 +9,10 @@ import com.sy.userservice.dto.RegisterResponseDto;
 import com.sy.userservice.exception.handler.UserHandler;
 import com.sy.userservice.jwt.JwtTokenProvider;
 import com.sy.userservice.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -21,10 +20,10 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
 
+    @Transactional(readOnly = true)
     public LoginResponseDto login(LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new UserHandler(FailureStatus.USER_ALREADY_EXIST));
@@ -33,17 +32,20 @@ public class AuthService {
             throw new UserHandler(FailureStatus.INVALID_PASSWORD);
         }
 
-        return new LoginResponseDto();
+        String access  = jwtTokenProvider.generateAccessToken(user.getEmail());
+        String refresh = jwtTokenProvider.generateRefreshToken();
+
+        return new LoginResponseDto(access, refresh, user.getNickname());
     }
 
     @Transactional
     public RegisterResponseDto register(RegisterRequestDto dto) {
         // 1. 중복 체크
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            throw new UserHandler(FailureStatus.USER_ALREADY_EXIST);
         }
         if (userRepository.existsByNickname(dto.getNickname())) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+            throw new UserHandler(FailureStatus.NICKNAME_ALREADY_EXIST);
         }
 
         // 2. 비밀번호 해싱
@@ -56,12 +58,11 @@ public class AuthService {
                 .nickname(dto.getNickname())
                 .build();
 
-        userRepository.save(user);
-
         return new RegisterResponseDto(user.getNickname());
     }
 
     public Boolean validateToken(String token) {
-        return true;
+        return jwtTokenProvider.validateAccessToken(token);
     }
+
 }

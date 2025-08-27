@@ -6,6 +6,7 @@ import com.sy.userservice.dto.LoginResponseDto;
 import com.sy.userservice.dto.RegisterRequestDto;
 import com.sy.userservice.dto.RegisterResponseDto;
 import com.sy.userservice.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ApiResponse<RegisterResponseDto> register (@RequestBody RegisterRequestDto dto) {
+    public ApiResponse<RegisterResponseDto> register (@Valid @RequestBody RegisterRequestDto dto) {
         RegisterResponseDto response = authService.register(dto);
 
         return ApiResponse.success(response);
