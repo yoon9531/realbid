@@ -7,9 +7,11 @@ import com.sy.userservice.dto.LoginResponseDto;
 import com.sy.userservice.dto.RegisterRequestDto;
 import com.sy.userservice.dto.RegisterResponseDto;
 import com.sy.userservice.exception.handler.UserHandler;
+import com.sy.userservice.jwt.JwtTokenProvider;
 import com.sy.userservice.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManager authenticationManager;
 
     public LoginResponseDto login(LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
