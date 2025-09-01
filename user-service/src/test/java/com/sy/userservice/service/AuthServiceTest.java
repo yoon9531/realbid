@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -58,7 +57,6 @@ class AuthServiceTest {
         // then (검증)
         assertNotNull(responseDto);
         assertEquals(requestDto.getNickname(), responseDto.getNickname());
-        // 중복 체크와 인코딩 메서드가 각각 1번씩 호출되었는지 확인
         verify(userRepository, times(1)).existsByEmail(requestDto.getEmail());
         verify(userRepository, times(1)).existsByNickname(requestDto.getNickname());
         verify(passwordEncoder, times(1)).encode(requestDto.getPassword());
@@ -79,8 +77,8 @@ class AuthServiceTest {
 
         assertEquals(FailureStatus.USER_ALREADY_EXIST, exception.getStatus());
         verify(userRepository, times(1)).existsByEmail(requestDto.getEmail());
-        verify(userRepository, never()).existsByNickname(anyString()); // 닉네임 중복체크는 실행되면 안 됨
-        verify(passwordEncoder, never()).encode(anyString()); // 비밀번호 인코딩도 실행되면 안 됨
+        verify(userRepository, never()).existsByNickname(anyString());
+        verify(passwordEncoder, never()).encode(anyString());
     }
 
 
@@ -130,7 +128,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(requestDto.getPassword(), user.getPassword())).thenReturn(false);
 
-        // when & then
+        // when
         UserHandler exception = assertThrows(UserHandler.class, () -> authService.login(requestDto));
 
         assertEquals(FailureStatus.INVALID_PASSWORD, exception.getStatus());
@@ -146,11 +144,9 @@ class AuthServiceTest {
 
         when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.empty());
 
-        // when & then
+        // when
         UserHandler exception = assertThrows(UserHandler.class, () -> authService.login(requestDto));
 
-        // 참고: 원본 코드에서는 유저가 없을 때 USER_ALREADY_EXIST를 던지고 있어 그대로 테스트합니다.
-        // 일반적으로는 USER_NOT_FOUND 같은 별도의 상태를 사용하는 것이 더 명확할 수 있습니다.
         assertEquals(FailureStatus.USER_ALREADY_EXIST, exception.getStatus());
         verify(passwordEncoder, never()).matches(anyString(), anyString()); // 비밀번호 비교 로직이 호출되지 않았는지 확인
         verify(jwtTokenProvider, never()).generateAccessToken(anyString()); // 토큰 생성 로직이 호출되지 않았는지 확인
