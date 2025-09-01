@@ -10,9 +10,8 @@ eureka:
       defaultZone: http://localhost:8761/eureka
 jwt:
   access-token:
-    secret: realbid-jwt-access-token-secret-key-for-hs256-algorithm-must-be-at-least-32bytes
-    expiration-seconds: 3600 # 1시간
-
+    secret: dGhpcy1pcy1teS1zdXBlci1zZWN1cmUtc2VjcmV0LWtleS1mb3ItdXNlci1zZXJ2aWNl
+    expiration-seconds: 3600
   refresh-token:
-    secret: realbid-jwt-refresh-token-secret-key-for-hs256-algorithm-must-be-at-least-32bytes
-    expiration-seconds: 1209600 # 14일
+    secret: YW5vdGhlci1zdHJvbmctYW5kLXNlY3VyZS1zZWNyZXQta2V5LWZvci1yZWZyZXNoLXRva2Vu
+    expiration-seconds: 86400

@@ -1,5 +1,7 @@
 package com.sy.userservice.jwt;
 
+import com.sy.userservice.common.FailureStatus;
+import com.sy.userservice.exception.handler.JwtHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,12 +65,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            // 토큰 추출
             String token = authHeader.substring(BEARER_PREFIX.length());
 
             // 토큰 검증
             if (!jwtTokenProvider.validateAccessToken(token)) {
-                // 유효하지 않은 토큰 → 전역 예외 처리로 위임(401 등)
-                throw new InvalidJwtException("Invalid or expired JWT");
+                throw new JwtHandler(FailureStatus.INVALID_TOKEN);
             }
 
             // 토큰에서 사용자 아이디/이메일(subject) 추출 후 유저 로드
@@ -90,10 +92,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception ex) {
             exceptionResolver.resolveException(request, response, null, ex);
         }
-    }
-
-    // 예시: 필터 내부에서 사용할 커스텀 예외
-    public static class InvalidJwtException extends RuntimeException {
-        public InvalidJwtException(String msg) { super(msg); }
     }
 }
