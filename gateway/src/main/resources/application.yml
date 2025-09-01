@@ -9,10 +9,20 @@ spring:
       server:
         webflux:
           routes:
-            - id: user-service
+            - id: user-service-route
               uri: lb://user-service
               predicates:
-                - Path=/api/users/**
+                - Path=/user-service/**
+              filters:
+                - StripPrefix=1
+
+            - id: user-service-docs-route
+              uri: lb://user-service
+              predicates:
+                - Path=/v3/api-docs/user-service
+              filters:
+                - RewritePath=/v3/api-docs/user-service, /v3/api-docs
+
             - id: product-service
               uri: lb://product-service
               predicates:
@@ -56,11 +66,12 @@ eureka:
 
 springdoc:
   swagger-ui:
-    use-root-path: true
     urls:
-      - name: Auth Service
-        url: http://localhost:8000/auth-service/v3/api-docs
-
+      - name: User Service
+        url: /v3/api-docs/user-service
+  api-docs:
+    groups:
+      enabled: true
 jwt:
   secret: dXNlcjEtc2VjcmV0LWtleS1mb3ItZ2F0ZXdheS1wcm9qZWN0LWV4YW1wbGU=
   access-token-expiration-time: 360000

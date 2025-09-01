@@ -34,8 +34,9 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
     private static final List<String> WHITELIST = List.of(
             "/api/auth/**",
-            "/*/swagger-ui/**",
-            "/*/v3/api-docs/**"
+            "/swagger-ui/**",         // Swagger UI 페이지
+            "/v3/api-docs/**",        // API 문서(spec)
+            "/swagger-resources/**"   // Swagger 리소스
     );
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 

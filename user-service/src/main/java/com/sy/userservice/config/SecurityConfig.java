@@ -22,7 +22,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
@@ -36,19 +35,25 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(authManager, her);
     }
 
+    private static final String[] AUTH_WHITELIST = {
+            "/api/auth/**",
+            "/actuator/health",
+            "/ws/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**"
+    };
+
+
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                            JwtAuthenticationProvider jwtAuthProvider,
-                                            JwtAuthenticationFilter jwtFilter) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authenticationProvider(jwtAuthProvider)
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/actuator/health", "/ws/**").permitAll()
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                );
         return http.build();
     }
 
