@@ -10,11 +10,12 @@ import com.sy.userservice.exception.handler.UserHandler;
 import com.sy.userservice.jwt.JwtTokenProvider;
 import com.sy.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -35,7 +36,10 @@ public class AuthService {
         String access  = jwtTokenProvider.generateAccessToken(user.getEmail());
         String refresh = jwtTokenProvider.generateRefreshToken();
 
-        return new LoginResponseDto(access, refresh, user.getNickname());
+        log.info(access);
+        log.info(refresh);
+
+        return new LoginResponseDto(user.getNickname(), access, refresh);
     }
 
     @Transactional
