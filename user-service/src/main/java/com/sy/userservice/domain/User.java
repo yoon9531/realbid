@@ -34,12 +34,11 @@ public class User {
     @Column(name = "nickname", nullable = false, length = Integer.MAX_VALUE)
     private String nickname;
 
-    @Column(name = "provider", length = Integer.MAX_VALUE)
+    @Column(name = "provider")
     private String provider;
 
-    @NotNull
-    @Column(name = "balance", nullable = false)
-    private BigDecimal balance;
+    @Column(name = "provider_id")
+    private String providerId;
 
     @NotNull
     @Column(name = "created_at", nullable = false)

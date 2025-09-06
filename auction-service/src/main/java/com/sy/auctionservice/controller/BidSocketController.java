@@ -15,12 +15,10 @@ public class BidSocketController {
     private final AuctionService auctionService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/auctions/{auctionId}/bid") // 클라이언트가 /app/auctions/{id}/bid 로 메시지를 보냄
+    @MessageMapping("/auctions/{auctionId}/bid")
     public void handleBid(@DestinationVariable Long auctionId, BidRequest bidRequest) {
-        // 1. 서비스에 입찰 처리 위임
         AuctionStateResponse updatedAuctionState = auctionService.processBid(auctionId, bidRequest);
 
-        // 2. 처리 결과를 해당 경매방을 구독 중인 모든 클라이언트에게 전송
         messagingTemplate.convertAndSend("/topic/auctions/" + auctionId, updatedAuctionState);
     }
 }

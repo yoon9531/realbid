@@ -10,12 +10,11 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic auctionEvents() {
-        return TopicBuilder.name("auction-events").build(); // 경매 생성, 종료 등
-    }
+        return TopicBuilder.name("auction-events").build();}
 
     @Bean
     public NewTopic bidEvents() {
-        return TopicBuilder.name("bid-events").build(); // 모든 입찰 기록
+        return TopicBuilder.name("bid-events").build();
     }
 
     @Bean
