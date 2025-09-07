@@ -12,7 +12,6 @@ public class DtoToEntityConverter {
                 .email(dto.getEmail())
                 .password(dto.getPassword())
                 .nickname(dto.getNickname())
-                .balance(BigDecimal.valueOf(0))
                 .build();
     }
 }

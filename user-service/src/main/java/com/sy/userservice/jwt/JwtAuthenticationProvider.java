@@ -1,5 +1,9 @@
 package com.sy.userservice.jwt;
 
+import com.sy.userservice.common.FailureStatus;
+import com.sy.userservice.domain.User;
+import com.sy.userservice.exception.handler.UserHandler;
+import com.sy.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +19,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -22,7 +27,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         if (!jwtTokenProvider.validateAccessToken(token)) {
             throw new BadCredentialsException("Invalid JWT");
         }
-        String username = jwtTokenProvider.getUsername(token);
+        User foundUser = userRepository.findById(Long.valueOf(jwtTokenProvider.getSubject(token)))
+                .orElseThrow(() -> new UserHandler(FailureStatus.USER_NOT_FOUND));
+        String username = foundUser.getEmail();
         UserDetails user = userDetailsService.loadUserByUsername(username);
 
         JwtAuthenticationToken result = new JwtAuthenticationToken(token);

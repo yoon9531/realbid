@@ -1,5 +1,7 @@
 package com.sy.product_service.service
 
+import com.sy.product_service.client.UserClient
+import com.sy.product_service.client.UserResponse
 import com.sy.product_service.domain.Product
 import com.sy.product_service.dto.ProductCreateRequest
 import com.sy.product_service.dto.ProductResponse
@@ -12,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true)
 class ProductServiceImpl(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val userClient: UserClient
 ): ProductService {
 
     @Transactional
@@ -25,7 +28,7 @@ class ProductServiceImpl(
         )
 
         val savedProduct = productRepository.save(product)
-        return savedProduct.toResponse(getSellerNickname(sellerId))
+        return savedProduct.toResponse(getSellerNickname(sellerId).toString())
     }
 
     override fun getAllProducts(): List<ProductResponse> {
@@ -78,8 +81,8 @@ class ProductServiceImpl(
         )
     }
 
-    override fun getSellerNickname(sellerId: Long): String {
+    override fun getSellerNickname(email: String): UserResponse {
         // TODO : 실제 사용자 서비스와 연동하여 닉네임을 가져오도록 구현 필요
-        return "Seller$sellerId" // 임시 닉네임
+        return userClient.getUserInfo(email)
     }
 }

@@ -96,7 +96,7 @@ class AuthServiceTest {
 
         when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(requestDto.getPassword(), user.getPassword())).thenReturn(true);
-        when(jwtTokenProvider.generateAccessToken(anyString())).thenReturn("dummyAccessToken");
+        when(jwtTokenProvider.generateAccessToken(user)).thenReturn("dummyAccessToken");
         when(jwtTokenProvider.generateRefreshToken()).thenReturn("dummyRefreshToken");
 
         // when
@@ -109,7 +109,7 @@ class AuthServiceTest {
         assertEquals(user.getNickname(), responseDto.getNickname());
         verify(userRepository, times(1)).findByEmail(requestDto.getEmail());
         verify(passwordEncoder, times(1)).matches(requestDto.getPassword(), user.getPassword());
-        verify(jwtTokenProvider, times(1)).generateAccessToken(user.getEmail());
+        verify(jwtTokenProvider, times(1)).generateAccessToken(user);
     }
 
 
@@ -132,7 +132,7 @@ class AuthServiceTest {
         UserHandler exception = assertThrows(UserHandler.class, () -> authService.login(requestDto));
 
         assertEquals(FailureStatus.INVALID_PASSWORD, exception.getStatus());
-        verify(jwtTokenProvider, never()).generateAccessToken(anyString()); // 토큰 생성 로직이 호출되지 않았는지 확인
+        verify(jwtTokenProvider, never()).generateAccessToken(user); // 토큰 생성 로직이 호출되지 않았는지 확인
     }
 
     // 사용자 로그인 실패 - 존재하지 않는 사용자
@@ -141,6 +141,11 @@ class AuthServiceTest {
     void login_fail_userNotFound() {
         // given
         LoginRequestDto requestDto = new LoginRequestDto("notfound@email.com", "password123");
+        User user = User.builder()
+                .email("notfound@email.com")
+                .password("password123")
+                .nickname("테스트실패유저")
+                .build();
 
         when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.empty());
 
@@ -149,7 +154,7 @@ class AuthServiceTest {
 
         assertEquals(FailureStatus.USER_ALREADY_EXIST, exception.getStatus());
         verify(passwordEncoder, never()).matches(anyString(), anyString()); // 비밀번호 비교 로직이 호출되지 않았는지 확인
-        verify(jwtTokenProvider, never()).generateAccessToken(anyString()); // 토큰 생성 로직이 호출되지 않았는지 확인
+        verify(jwtTokenProvider, never()).generateAccessToken(user); // 토큰 생성 로직이 호출되지 않았는지 확인
     }
 
 

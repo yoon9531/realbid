@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: product-service
+
+
+feign:
+  client:
+    user-service:
+      url: http://localhost:8081

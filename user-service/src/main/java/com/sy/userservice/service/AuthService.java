@@ -33,7 +33,7 @@ public class AuthService {
             throw new UserHandler(FailureStatus.INVALID_PASSWORD);
         }
 
-        String access  = jwtTokenProvider.generateAccessToken(user.getEmail());
+        String access  = jwtTokenProvider.generateAccessToken(user);
         String refresh = jwtTokenProvider.generateRefreshToken();
 
         log.info(access);

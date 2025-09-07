@@ -1,6 +1,5 @@
 package com.sy.userservice.jwt;
-import com.sy.userservice.common.FailureStatus;
-import com.sy.userservice.exception.handler.JwtHandler;
+import com.sy.userservice.domain.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -50,14 +48,16 @@ public class JwtTokenProvider {
 
     /**
      * Access Token 생성
-     * @param userEmail 사용자를 식별할 수 있는 값 (이메일, ID 등)
+     * @param user 사용자 엔티티 객체
      */
-    public String generateAccessToken(String userEmail) {
+    public String generateAccessToken(User user) {
         long now = (new Date()).getTime();
         Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(userEmail)
+                .setSubject(user.getId().toString())
+                .claim("email", user.getEmail())
+                .claim("nickname", user.getNickname())
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(accessKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -83,7 +83,7 @@ public class JwtTokenProvider {
         Claims claims = parseClaims(accessToken, accessKey);
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        UserDetails principal = new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
@@ -139,7 +139,25 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public String getUsername(String token) {
+    public String getSubject(String token) {
         return Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token).getBody().getSubject();
     }
+
+    public <T> T getClaim(String token, String claimName, Class<T> requiredType) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(accessKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get(claimName, requiredType);
+    }
+
+    public String getEmail(String token) {
+        return getClaim(token, "email", String.class);
+    }
+
+    public String getNickname(String token) {
+        return getClaim(token, "nickname", String.class);
+    }
+
 }

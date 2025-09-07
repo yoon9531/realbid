@@ -1,9 +1,17 @@
 package com.sy.userservice.jwt;
 
+import com.sy.userservice.common.FailureStatus;
+import com.sy.userservice.domain.User;
+import com.sy.userservice.exception.handler.UserHandler;
+import com.sy.userservice.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
+@ExtendWith(MockitoExtension.class)
 class JwtTokenProviderTest {
 
     private JwtTokenProvider jwtTokenProvider;
@@ -22,6 +31,10 @@ class JwtTokenProviderTest {
     private final long accessTokenValidity = 3600; // 1시간
     private final long refreshTokenValidity = 86400; // 24시간
 
+    private User testUser;
+    @Mock
+    private UserRepository userRepository;
+
     @BeforeEach
     void setUp() {
         jwtTokenProvider = new JwtTokenProvider(
@@ -30,22 +43,27 @@ class JwtTokenProviderTest {
                 accessTokenValidity,
                 refreshTokenValidity
         );
+
+        testUser = new User().builder()
+                .id(100L)
+                .email("test@example.com")
+                .nickname("testuser")
+                .password("password")
+                .build();
     }
 
     @Test
-    @DisplayName("액세스 토큰 생성 및 유효성 검증 성공")
+    @DisplayName("액세스 토큰 생성 및 유효성 검증 성공 (userId 기반)")
     void generateAndValidateAccessToken() {
-        // given
-        String userEmail = "test@example.com";
-
         // when
-        String accessToken = jwtTokenProvider.generateAccessToken(userEmail);
+        String accessToken = jwtTokenProvider.generateAccessToken(testUser);
         log.info(accessToken);
+
         // then
         assertNotNull(accessToken);
         assertTrue(jwtTokenProvider.validateAccessToken(accessToken));
-        assertEquals(userEmail, jwtTokenProvider.getUsername(accessToken));
-        log.info(jwtTokenProvider.getUsername(accessToken));
+        assertEquals(testUser.getId().toString(), jwtTokenProvider.getSubject(accessToken)); // userId 비교
+        log.info(jwtTokenProvider.getSubject(accessToken));
     }
 
     @Test
@@ -65,8 +83,7 @@ class JwtTokenProviderTest {
         // given
         // 만료시간이 1밀리초인 토큰 프로바이더를 새로 생성
         JwtTokenProvider expiredTokenProvider = new JwtTokenProvider(testAccessSecret, testRefreshSecret, 0, 0);
-        String userEmail = "test@example.com";
-        String expiredToken = expiredTokenProvider.generateAccessToken(userEmail);
+        String expiredToken = expiredTokenProvider.generateAccessToken(testUser);
 
         // 토큰이 확실히 만료되도록 잠시 대기
         Thread.sleep(10);
@@ -95,8 +112,7 @@ class JwtTokenProviderTest {
     @DisplayName("토큰에서 Authentication 객체 생성 성공")
     void getAuthentication() {
         // given
-        String userEmail = "test@example.com";
-        String accessToken = jwtTokenProvider.generateAccessToken(userEmail);
+        String accessToken = jwtTokenProvider.generateAccessToken(testUser);
 
         // when
         Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
@@ -104,20 +120,20 @@ class JwtTokenProviderTest {
         // then
         assertNotNull(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        assertEquals(userEmail, userDetails.getUsername());
+        assertEquals(testUser.getId().toString(), userDetails.getUsername());
         assertTrue(authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER")));
     }
 
     @Test
-    @DisplayName("토큰에서 사용자 이메일 추출 성공")
+    @DisplayName("토큰에서 사용자 아이디 추출 성공")
     void getUsername() {
         // given
-        String expectedEmail = "user@test.com";
-        String token = jwtTokenProvider.generateAccessToken(expectedEmail);
+        String token = jwtTokenProvider.generateAccessToken(testUser);
 
         // when
-        String actualEmail = jwtTokenProvider.getUsername(token);
+        String expectedEmail = "100";
+        String actualEmail = jwtTokenProvider.getSubject(token);
 
         // then
         assertEquals(expectedEmail, actualEmail);
