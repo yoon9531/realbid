@@ -58,6 +58,7 @@ public class JwtTokenProvider {
                 .setSubject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .claim("nickname", user.getNickname())
+                .claim("role", "ROLE_USER")
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(accessKey, SignatureAlgorithm.HS256)
                 .compact();

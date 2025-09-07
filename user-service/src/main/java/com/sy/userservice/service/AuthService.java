@@ -36,9 +36,6 @@ public class AuthService {
         String access  = jwtTokenProvider.generateAccessToken(user);
         String refresh = jwtTokenProvider.generateRefreshToken();
 
-        log.info(access);
-        log.info(refresh);
-
         return new LoginResponseDto(user.getNickname(), access, refresh);
     }
 
